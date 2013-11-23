@@ -66,24 +66,8 @@ namespace Org.Mentalis.Proxy
         public Proxy()
         {
             Config = new ProxyConfig(this);
-            commands = new Dictionary<String, ProxyCommand>{
-                {"help", new ProxyCommand{Action=ShowHelp, HelpString="Shows this help message"}},
-                {"uptime", new ProxyCommand{Action=ShowUpTime, HelpString="Shows the uptime of the proxy server"}},
-                {"version", new ProxyCommand{Action=ShowVersion, HelpString="Prints the version of this program"}},
-                {"listusers", new ProxyCommand{Action=()=>UserManager.ShowUsers(Config), HelpString="Lists all users"}},
-                {"adduser", new ProxyCommand{Action=()=>UserManager.AddUser(Config), HelpString="Adds a user to the user list"}},
-                {"deluser", new ProxyCommand{Action=()=>UserManager.DeleteUser(Config), HelpString="Deletes a user from the user list"}},
-                {"listlisteners", new ProxyCommand{Action=ShowListeners, HelpString="Lists all the listeners"}},
-                {"addlistener", new ProxyCommand{Action=ShowAddListener, HelpString="Adds a new listener"}},
-                {"dellistener", new ProxyCommand{Action=ShowDelListener, HelpString="Deletes a listener"}},
-                {"listeners", new ProxyCommand{Action=ShowAvailableListeners, HelpString="List available listeners"}},
-                {"exit", new ProxyCommand{Action=()=>{}, HelpString="Exit the application"}},
-                {"save", new ProxyCommand{Action=()=>Config.SaveData("xxx"), HelpString="Save configuration"}},
-            };
-
-            
         }
-        
+
         /// <summary>
         /// Asks the user which listener to delete.
         /// </summary>
@@ -183,25 +167,6 @@ namespace Org.Mentalis.Proxy
             }
         }
 
-        /// <summary>
-        /// Shows a list of commands in the console.
-        /// </summary>
-        protected void ShowHelp()
-        {
-            foreach (var command in commands.Keys)
-            {
-                Console.WriteLine("{0} - {1}", command, commands[command].HelpString);
-            }
-            Console.WriteLine("\r\n Read the readme.txt file for more help.");
-        }
-        /// <summary>
-        /// Shows the uptime of this proxy server.
-        /// </summary>
-        protected void ShowUpTime()
-        {
-            TimeSpan uptime = DateTime.Now.Subtract(StartTime);
-            Console.WriteLine("Up " + uptime.ToString());
-        }
         /// <summary>
         /// Shows the version number of this proxy server.
         /// </summary>
@@ -305,17 +270,10 @@ namespace Org.Mentalis.Proxy
         
        
         /// <summary>
-        /// Gets or sets the date when this Proxy server was first started.
-        /// </summary>
-        /// <value>A DateTime structure that indicates when this Proxy server was first started.</value>
-        protected DateTime StartTime { get; private set; }
-        /// <summary>
         /// Gets or sets the configuration object for this Proxy server.
         /// </summary>
         /// <value>A ProxyConfig instance that represents the configuration object for this Proxy server.</value>
         protected ProxyConfig Config { get; private set; }
-        /// <summary>All available commands</summary>
-        private IDictionary<String, ProxyCommand> commands;
 
         public ListenerManager listenerManager = new ListenerManager();
         private AvailableListenerManager availableManager = new AvailableListenerManager();

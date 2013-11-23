@@ -12,20 +12,28 @@ namespace Org.Mentalis.Proxy.Cli
         public CommandLine(Proxy prx)
         {
             _proxy = prx;
-            _commands = new Dictionary<String, ProxyCommand>{
-                                                                {"help", new ProxyCommand{Action=ShowHelp, HelpString="Shows this help message"}},
-                                                                //{"uptime", new ProxyCommand{Action=ShowUpTime, HelpString="Shows the uptime of the proxy server"}},
-                                                                //{"version", new ProxyCommand{Action=ShowVersion, HelpString="Prints the version of this program"}},
-                                                                //{"listusers", new ProxyCommand{Action=()=>UserManager.ShowUsers(Config), HelpString="Lists all users"}},
-                                                                //{"adduser", new ProxyCommand{Action=()=>UserManager.AddUser(Config), HelpString="Adds a user to the user list"}},
-                                                                //{"deluser", new ProxyCommand{Action=()=>UserManager.DeleteUser(Config), HelpString="Deletes a user from the user list"}},
-                                                                //{"listlisteners", new ProxyCommand{Action=ShowListeners, HelpString="Lists all the listeners"}},
-                                                                //{"addlistener", new ProxyCommand{Action=ShowAddListener, HelpString="Adds a new listener"}},
-                                                                //{"dellistener", new ProxyCommand{Action=ShowDelListener, HelpString="Deletes a listener"}},
-                                                                //{"listeners", new ProxyCommand{Action=ShowAvailableListeners, HelpString="List available listeners"}},
-                                                                {"exit", new ProxyCommand{Action=()=>{}, HelpString="Exit the application"}},
-                                                                //{"save", new ProxyCommand{Action=()=>Config.SaveData(), HelpString="Save configuration"}},
-                                                            };
+            _commands = new Dictionary<String, ProxyCommand>
+                            {
+                                {"help", new ProxyCommand {Action = ShowHelp, HelpString = "Shows this help message"}},
+                                {
+                                    "uptime",
+                                    new ProxyCommand
+                                        {
+                                            Action = ShowUpTime,
+                                            HelpString = "Shows the uptime of the proxy server"
+                                        }
+                                },
+                                //{"version", new ProxyCommand{Action=ShowVersion, HelpString="Prints the version of this program"}},
+                                //{"listusers", new ProxyCommand{Action=()=>UserManager.ShowUsers(Config), HelpString="Lists all users"}},
+                                //{"adduser", new ProxyCommand{Action=()=>UserManager.AddUser(Config), HelpString="Adds a user to the user list"}},
+                                //{"deluser", new ProxyCommand{Action=()=>UserManager.DeleteUser(Config), HelpString="Deletes a user from the user list"}},
+                                //{"listlisteners", new ProxyCommand{Action=ShowListeners, HelpString="Lists all the listeners"}},
+                                //{"addlistener", new ProxyCommand{Action=ShowAddListener, HelpString="Adds a new listener"}},
+                                //{"dellistener", new ProxyCommand{Action=ShowDelListener, HelpString="Deletes a listener"}},
+                                //{"listeners", new ProxyCommand{Action=ShowAvailableListeners, HelpString="List available listeners"}},
+                                {"exit", new ProxyCommand {Action = () => { }, HelpString = "Exit the application"}},
+                                //{"save", new ProxyCommand{Action=()=>Config.SaveData(), HelpString="Save configuration"}},
+                            };
         }
 
         public void StartLoop()
@@ -54,6 +62,16 @@ namespace Org.Mentalis.Proxy.Cli
             }
             Console.WriteLine("Goodbye...");
         }
+
+        /// <summary>
+        /// Shows the uptime of this proxy server.
+        /// </summary>
+        protected void ShowUpTime()
+        {
+            TimeSpan uptime = DateTime.Now.Subtract(startTime);
+            Console.WriteLine("Up {0} since {1}", uptime, startTime);
+        }
+
 
         /// <summary>
         /// Shows a list of commands in the console.
