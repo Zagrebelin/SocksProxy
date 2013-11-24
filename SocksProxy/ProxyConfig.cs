@@ -29,18 +29,15 @@
 */
 
 using System;
-using System.IO;
+using System.Configuration;
+using System.Globalization;
+using System.Linq;
 using System.Xml;
 using System.Text;
-using System.Collections;
 using System.Collections.Specialized;
-using System.Security.Cryptography;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Net;
-using System.Linq;
-using Org.Mentalis.Proxy;
 using Org.Mentalis.Proxy.Socks.Authentication;
+using SocksProxy;
 
 namespace Org.Mentalis.Proxy
 {
@@ -53,163 +50,13 @@ namespace Org.Mentalis.Proxy
         /// Initializes a new ProxyConfig instance.
         /// </summary>
         /// <param name="parent">The parent of this ProxyCondif instance.</param>
-        /// <param name="file">The XML file to read data from and store data to.</param>
         /// <exception cref="ArgumentNullException"><c>file</c> is null -or- <c>parent</c> is null.</exception>
-        public ProxyConfig(Proxy parent)
+        public ProxyConfig(IProxy parent, IAuthenticationList mUserList)
         {
             if (parent == null)
                 throw new ArgumentNullException();
             m_Parent = parent;
-        }
-        /// <summary>
-        /// Reads a string from the settings section.
-        /// </summary>
-        /// <param name="name">The key to read from.</param>
-        /// <returns>The string value that corresponds with the specified key, or an empty string if the specified key was not found in the collection.</returns>
-        public string ReadString(string name)
-        {
-            return ReadString(name, "");
-        }
-        /// <summary>
-        /// Reads a string from the settings section.
-        /// </summary>
-        /// <param name="name">The key to read from.</param>
-        /// <param name="def">The default string to return.</param>
-        /// <returns>The string value that corresponds with the specified key, or <c>def</c> if the specified key was not found in the collection.</returns>
-        public string ReadString(string name, string def)
-        {
-            if (name == null)
-                return def;
-            if (!Settings.ContainsKey(name))
-                return def;
-            return Settings[name];
-        }
-        /// <summary>
-        /// Reads a byte array from the settings section.
-        /// </summary>
-        /// <param name="name">The key to read from.</param>
-        /// <returns>The array of bytes that corresponds with the specified key, or <c>null</c> if the specified key was not found in the collection.</returns>
-        public byte[] ReadBytes(string name)
-        {
-            string ret = ReadString(name, null);
-            if (ret == null)
-                return null;
-            return Convert.FromBase64String(ret);
-        }
-        /// <summary>
-        /// Reads an integer from the settings section.
-        /// </summary>
-        /// <param name="name">The key to read from.</param>
-        /// <returns>The integer that corresponds with the specified key, or 0 if the specified key was not found in the collection.</returns>
-        public int ReadInt(string name)
-        {
-            return ReadInt(name, 0);
-        }
-        /// <summary>
-        /// Reads an integer from the settings section.
-        /// </summary>
-        /// <param name="name">The key to read from.</param>
-        /// <param name="def">The default integer to return.</param>
-        /// <returns>The integer that corresponds with the specified key, or <c>def</c> if the specified key was not found in the collection.</returns>
-        public int ReadInt(string name, int def)
-        {
-            if (name == null)
-                return def;
-            if (!Settings.ContainsKey(name))
-                return def;
-            return int.Parse(Settings[name]);
-        }
-        /// <summary>
-        /// Saves a string to the settings section.
-        /// </summary>
-        /// <param name="name">The key of the setting.</param>
-        /// <param name="data">The string data of the setting.</param>
-        public void SaveSetting(string name, string data)
-        {
-            if (name == null || data == null)
-                throw new ArgumentNullException();
-            if (Settings.ContainsKey(name))
-                Settings[name] = data;
-            else
-                Settings.Add(name, data);
-        }
-        /// <summary>
-        /// Saves an integer to the settings section.
-        /// </summary>
-        /// <param name="name">The key of the setting.</param>
-        /// <param name="data">The integer data of the setting.</param>
-        /// <param name="saveData">True if the data has to be written to the XML file, false otherwise.</param>
-        public void SaveSetting(string name, int data)
-        {
-            SaveSetting(name, data.ToString());
-        }
-        /// <summary>
-        /// Saves an array of bytes to the settings section.
-        /// </summary>
-        /// <param name="name">The key of the setting.</param>
-        /// <param name="data">The byte data of the setting.</param>
-        /// <param name="saveData">True if the data has to be written to the XML file, false otherwise.</param>
-        public void SaveSetting(string name, byte[] data)
-        {
-            if (data == null)
-                throw new ArgumentNullException();
-            SaveSetting(name, Convert.ToBase64String(data));
-        }
-        
-        /// <summary>
-        /// Saves a username and password combination to the authentication list.
-        /// </summary>
-        /// <param name="username">The username to add.</param>
-        /// <param name="password">The password to add.</param>
-        /// <param name="saveData">True if the data has to be written to the XML file, false otherwise.</param>
-        /// <exception cref="ArgumentNullException"><c>username</c> is null -or- <c>password</c> is null.</exception>
-        /// <exception cref="ArgumentException">The specified username is invalid.</exception>
-        /// <remarks><p>If the user already exists in the collection, the old password will be changed to the new one.</p><p>The username 'users' is invalid because it is used internally to store the usernames.</p><p>The password will be hashed before it is stored in the authentication list.</p></remarks>
-        public void SaveUserPass(string username, string password)
-        {
-            if (username == null || password == null)
-                throw new ArgumentNullException();
-            if (username.ToLower() == "users" || username == "")
-                throw new ArgumentException();
-            if (UserList.IsUserPresent(username))
-                UserList.RemoveItem(username);
-            UserList.AddItem(username, password);
-        }
-        /// <summary>
-        /// Saves a username and password hash combination to the authentication list.
-        /// </summary>
-        /// <param name="username">The username to add.</param>
-        /// <param name="passHash">The password hash to add.</param>
-        /// <param name="saveData">True if the data has to be written to the XML file, false otherwise.</param>
-        /// <exception cref="ArgumentNullException"><c>username</c> is null -or- <c>passHash</c> is null.</exception>
-        /// <exception cref="ArgumentException">The specified username is invalid.</exception>
-        /// <remarks><p>If the user already exists in the collection, the old password hash will be changed to the new one.</p><p>The username 'users' is invalid because it is used internally to store the usernames.</p><p>The password will <em>not</em> be hashed before it is stored in the authentication list. The user must make sure it is a valid MD5 hash.</p></remarks>
-        public void SaveUserHash(string username, string passHash)
-        {
-            if (username == null || passHash == null)
-                throw new ArgumentNullException();
-            if (username.ToLower() == "users" || username == "")
-                throw new ArgumentException();
-            UserList.AddHash(username, passHash);
-        }
-        /// <summary>
-        /// Removes a user from the authentication list.
-        /// </summary>
-        /// <param name="user">The user to remove.</param>
-        public void RemoveUser(string user)
-        {
-            RemoveUser(user, true);
-        }
-        /// <summary>
-        /// Removes a user from the authentication list.
-        /// </summary>
-        /// <param name="user">The user to remove.</param>
-        /// <param name="save">True if the data has to be written to the XML file, false otherwise.</param>
-        public void RemoveUser(string user, bool save)
-        {
-            if (user == null)
-                throw new ArgumentNullException();
-            UserList.RemoveItem(user);
+            m_UserList = mUserList;
         }
 
         #region Save config
@@ -218,199 +65,58 @@ namespace Org.Mentalis.Proxy
         /// </summary>
         public void SaveData(string filename)
         {
-            XmlTextWriter writer = null;
-            try
+            var cc = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var ss = cc.Sections["mentalis"] as MentalisSection;
+            if (ss != null)
             {
-                writer = new XmlTextWriter(filename, Encoding.UTF8);
-                writer.Indentation = 2;
-                writer.Formatting = Formatting.Indented;
-                writer.WriteStartElement("MentalisProxy");
-                // Write the version
-                writer.WriteStartElement("Version");
-                writer.WriteStartAttribute("", "value", "");
-                writer.WriteString(Assembly.GetCallingAssembly().GetName().Version.ToString(2));
-                writer.WriteEndAttribute();
-                writer.WriteEndElement();
-                // Write the settings
-                SaveSettings(writer);
-                // Write the Authentication list to the file
-                SaveUsers(writer);
-                // Write the Listeners list to the file
-                SaveListeners(writer);
-                // Clean up
-                writer.WriteEndElement();
+                ss.Users.Clear();
+                foreach (var user in UserList.Listing.Keys.OfType<string>())
+                {
+                    ss.Users.Add(new MentalisSection.UsersElementCollection.UserElement
+                                     {
+                                         Name = user,
+                                         Hash = UserList.Listing[user]
+                                     });
+                }
+                ss.Listeners.Clear();
+                var ls = Parent.ListListeners().Select(p => new {id = p.Key, prms = p.Value.ConstructString, type=p.Value.GetType().AssemblyQualifiedName});
+                foreach (var listener in ls)
+                {
+                    ss.Listeners.Add(new MentalisSection.ListenersElementCollection.ListenerElement
+                                         {
+                                             Id = listener.id.ToString(),
+                                             Type = listener.type,
+                                             Params = listener.prms
+                                         });
+                }
             }
-            catch
-            {
-            }
-            finally
-            {
-                if (writer != null)
-                    writer.Close();
-            }
-        }
-        /// <summary>
-        /// Saves the settings in this class to an XML writer.
-        /// </summary>
-        /// <param name="writer">The XML writer to save the data to.</param>
-        private void SaveSettings(XmlTextWriter writer)
-        {
-            writer.WriteStartElement("Settings");
-            string[] keys = new string[Settings.Count];
-            Settings.Keys.CopyTo(keys, 0);
-            for (int i = 0; i < keys.Length; i++)
-            {
-                writer.WriteStartElement(keys[i]);
-                writer.WriteStartAttribute("", "value", "");
-                writer.WriteString(Settings[keys[i]]);
-                writer.WriteEndAttribute();
-                writer.WriteEndElement();
-            }
-            writer.WriteEndElement();
-        }
-        /// <summary>
-        /// Saves the authentication list to an XML writer.
-        /// </summary>
-        /// <param name="writer">The XML writer to save the users to.</param>
-        private void SaveUsers(XmlTextWriter writer)
-        {
-            writer.WriteStartElement("Users");
-            string[] keys = UserList.Keys;
-            string[] hashes = UserList.Hashes;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                writer.WriteStartElement(keys[i]);
-                writer.WriteStartAttribute("", "value", "");
-                writer.WriteString(hashes[i]);
-                writer.WriteEndAttribute();
-                writer.WriteEndElement();
-            }
-            writer.WriteEndElement();
-        }
-        /// <summary>
-        /// Saves the listeners to an XML writer.
-        /// </summary>
-        /// <param name="writer">The XML writer to save the users to.</param>
-        private void SaveListeners(XmlTextWriter writer)
-        {
-            writer.WriteStartElement("Listeners");
-            lock (Parent)
-            {
-                Parent.listenerManager.DoAll(l=>SaveListener(writer, l));
-            }
-            writer.WriteEndElement();
-        }
+            cc.Save();
 
-        private void SaveListener(XmlTextWriter writer, Listener l)
-        {
-            writer.WriteStartElement("listener");
-            // Write the type, eg 'Org.Mentalis.Proxy.Http.HttpListener'
-            writer.WriteStartAttribute("", "type", "");
-            writer.WriteString(l.GetType().FullName);
-            writer.WriteEndAttribute();
-            // Write the construction string
-            writer.WriteStartAttribute("", "value", "");
-            writer.WriteString(l.ConstructString);
-            writer.WriteEndAttribute();
-            writer.WriteEndElement();
         }
         #endregion
 
         #region Load config
+
         /// <summary>
         /// Loads the data from an XML file.
         /// </summary>
         public void LoadData(string filename)
         {
-            if (!System.IO.File.Exists(filename))
-                throw new FileNotFoundException();
-            XmlTextReader reader = null;
-            try
+            var c = Mentalis.Config;
+
+            foreach (MentalisSection.UsersElementCollection.UserElement user in c.Users)
             {
-                reader = new XmlTextReader(filename);
-                // Read until we reach the MentalisProxy element
-                while (reader.Read() && reader.Name.ToLower() != "mentalisproxy") { }
-                // Read until we reach the MentalisProxy element again (the end tag)
-                while (reader.Read() && reader.Name.ToLower() != "mentalisproxy")
-                {
-                    if (!reader.IsEmptyElement)
-                    {
-                        switch (reader.Name.ToLower())
-                        {
-                            case "settings":
-                                Settings.Clear();
-                                LoadSettings(reader);
-                                break;
-                            case "users":
-                                UserList.Clear();
-                                LoadUsers(reader);
-                                break;
-                            case "listeners":
-                                LoadListeners(reader);
-                                break;
-                        }
-                    }
-                }
+                UserList.AddHash(user.Name, user.Hash);
             }
-            catch
+
+            foreach (MentalisSection.ListenersElementCollection.ListenerElement listener in c.Listeners)
             {
-                throw new XmlException("Malformed XML initialisation file.", null);
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-            }
-        }
-        /// <summary>
-        /// Loads the settings from an XML file.
-        /// </summary>
-        /// <param name="reader">The XML reader to read the settings from.</param>
-        private void LoadSettings(XmlTextReader reader)
-        {
-            // Read until we reach the Settings element end tag
-            while (reader.Read() && reader.Name.ToLower() != "settings")
-            {
-                if (reader.Name != null && reader["value"] != null)
-                    SaveSetting(reader.Name, reader["value"]);
-            }
-        }
-        /// <summary>
-        /// Loads the userlist from an XML file.
-        /// </summary>
-        /// <param name="reader">The XML reader to read the users from.</param>
-        private void LoadUsers(XmlTextReader reader)
-        {
-            // Read until we reach the Settings element end tag
-            while (reader.Read() && reader.Name.ToLower() != "users")
-            {
-                if (reader.Name != null && reader["value"] != null)
-                    SaveUserHash(reader.Name, reader["value"]);
-            }
-        }
-        /// <summary>
-        /// Loads the listeners list from an XML file.
-        /// </summary>
-        /// <param name="reader">The XML reader to read the users from.</param>
-        private void LoadListeners(XmlTextReader reader)
-        {
-            // Read until we reach the Listeners element end tag
-            Listener listener = null;
-            while (reader.Read() && reader.Name.ToLower() != "listeners")
-            {
-                if (reader.Name != null && reader["value"] != null && reader["type"] != null)
-                {
-                    listener = Parent.CreateListener(reader["type"], reader["value"]);
-                    if (listener != null)
-                    {
-                        try
-                        {
-                            listener.Start();
-                        }
-                        catch { }
-                        Parent.AddListener(listener);
-                    }
-                }
+                var klass = Type.GetType(listener.Type);
+                Guid id;
+                if (!Guid.TryParse(listener.Id, out id))
+                    continue;
+                if (klass != null)
+                    Parent.AddListener(id, klass, Tools.ParseStringToParams(listener.Params));
             }
         }
         #endregion
@@ -419,7 +125,7 @@ namespace Org.Mentalis.Proxy
         /// Gets the parent object of this ProxyConfig class.
         /// </summary>
         /// <value>An instance of the Proxy class.</value>
-        public Proxy Parent
+        public IProxy Parent
         {
             get
             {
@@ -427,21 +133,10 @@ namespace Org.Mentalis.Proxy
             }
         }
         /// <summary>
-        /// Gets the dictionary that holds the settings.
-        /// </summary>
-        /// <value>An instance of the StringDictionary class that holds the settings.</value>
-        private StringDictionary Settings
-        {
-            get
-            {
-                return m_Settings;
-            }
-        }
-        /// <summary>
         /// Gets the userlist.
         /// </summary>
         /// <value>An instance of the AuthenticationList class that holds all the users and their corresponding password hashes.</value>
-        internal AuthenticationList UserList
+        public IAuthenticationList UserList
         {
             get
             {
@@ -449,15 +144,12 @@ namespace Org.Mentalis.Proxy
             }
         }
         // private variables
-        /// <summary>Holds the value of the File property.</summary>
-        private string m_File;
-        /// <summary>Holds the value of the Settings property.</summary>
-        private StringDictionary m_Settings = new StringDictionary();
         /// <summary>Holds the value of the UserList property.</summary>
-        private AuthenticationList m_UserList = new AuthenticationList();
+        private readonly IAuthenticationList m_UserList;
         /// <summary>Holds the value of the Parent property.</summary>
-        private Proxy m_Parent;
+        private readonly IProxy m_Parent;
     }
+
 }
 /*
 <MentalisProxy>

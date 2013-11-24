@@ -38,14 +38,14 @@ namespace Org.Mentalis.Proxy
             }
         }
 
-        internal bool ContainsKey(string classtype)
+        public bool ContainsKey(string classtype)
         {
             return availableListeners.ContainsKey(classtype);
         }
 
-        internal string GetFullName(string classtype)
+        public string GetFullName(string classtype)
         {
-            return availableListeners[classtype].FullName;
+            return availableListeners[classtype].AssemblyQualifiedName;
         }
     }
 }

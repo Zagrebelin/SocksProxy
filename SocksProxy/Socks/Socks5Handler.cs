@@ -47,7 +47,7 @@ namespace Org.Mentalis.Proxy.Socks
         ///<param name="AuthList">The authentication list to use when clients connect.</param>
         ///<exception cref="ArgumentNullException"><c>Callback</c> is null.</exception>
         ///<remarks>If the AuthList parameter is null, no authentication will be required when a client connects to the proxy server.</remarks>
-        public Socks5Handler(Socket ClientConnection, NegotiationCompleteDelegate Callback, AuthenticationList AuthList)
+        public Socks5Handler(Socket ClientConnection, NegotiationCompleteDelegate Callback, IAuthenticationList AuthList)
             : base(ClientConnection, Callback)
         {
             this.AuthList = AuthList;
@@ -321,22 +321,12 @@ namespace Org.Mentalis.Proxy.Socks
                 m_AuthMethod = value;
             }
         }
+
         ///<summary>Gets or sets the AuthenticationList object to use when trying to authenticate the SOCKS client.</summary>
         ///<value>The AuthenticationList object to use when trying to authenticate the SOCKS client.</value>
-        private AuthenticationList AuthList
-        {
-            get
-            {
-                return m_AuthList;
-            }
-            set
-            {
-                m_AuthList = value;
-            }
-        }
+        private IAuthenticationList AuthList { get; set; }
+
         // private variables
-        /// <summary>Holds the value of the AuthList property.</summary>
-        private AuthenticationList m_AuthList;
         /// <summary>Holds the value of the AuthMethod property.</summary>
         private AuthBase m_AuthMethod;
     }

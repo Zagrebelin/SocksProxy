@@ -41,7 +41,7 @@ namespace Org.Mentalis.Proxy.Socks.Authentication
     ///<remarks>This class can be used by a SOCKS5 listener.</remarks>
     ///<remarks>This class uses an MD5 has to store the passwords in a secure manner.</remarks>
     ///<remarks>The username is treated in a case-insensitive manner, the password is treated case-sensitive.</remarks>
-    public class AuthenticationList
+    public class AuthenticationList : IAuthenticationList
     {
         ///<summary>Initializes a new instance of the AuthenticationList class.</summary>
         public AuthenticationList() { }
@@ -106,7 +106,7 @@ namespace Org.Mentalis.Proxy.Socks.Authentication
         }
         ///<summary>Gets the StringDictionary that's used to store the user/pass combinations.</summary>
         ///<value>A StringDictionary object that's used to store the user/pass combinations.</value>
-        protected StringDictionary Listing
+        public StringDictionary Listing
         {
             get
             {
@@ -115,7 +115,7 @@ namespace Org.Mentalis.Proxy.Socks.Authentication
         }
         ///<summary>Gets an array with all the keys in the authentication list.</summary>
         ///<value>An array of strings containing all the keys in the authentication list.</value>
-        public string[] Keys
+        public string[] Usernames
         {
             get
             {

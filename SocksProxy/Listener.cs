@@ -85,22 +85,12 @@ namespace Org.Mentalis.Proxy
                 Restart();
             }
         }
+
         ///<summary>Gets or sets the listening Socket.</summary>
         ///<value>An instance of the Socket class that's used to listen for incoming connections.</value>
         ///<exception cref="ArgumentNullException">The specified value is null.</exception>
-        protected Socket ListenSocket
-        {
-            get
-            {
-                return m_ListenSocket;
-            }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException();
-                m_ListenSocket = value;
-            }
-        }
+        protected Socket ListenSocket { get; set; }
+
         ///<summary>Gets the list of connected clients.</summary>
         ///<value>An instance of the ArrayList class that's used to store all the connections.</value>
         protected ArrayList Clients
@@ -133,7 +123,7 @@ namespace Org.Mentalis.Proxy
             catch
             {
                 ListenSocket = null;
-                throw new SocketException();
+                throw;
             }
         }
         ///<summary>Restarts listening on the selected IP address and port.</summary>
@@ -294,8 +284,7 @@ namespace Org.Mentalis.Proxy
         private int m_Port;
         /// <summary>Holds the value of the Address property.</summary>
         private IPAddress m_Address;
-        /// <summary>Holds the value of the ListenSocket property.</summary>
-        private Socket m_ListenSocket;
+
         /// <summary>Holds the value of the Clients property.</summary>
         private ArrayList m_Clients = new ArrayList();
         /// <summary>Holds the value of the IsDisposed property.</summary>

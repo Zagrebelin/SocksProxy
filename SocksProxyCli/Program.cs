@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,18 +15,17 @@ namespace Org.Mentalis.Proxy.Cli
         {
             try
             {
-                string dir = Environment.CurrentDirectory;
-                if (!dir.Substring(dir.Length - 1, 1).Equals(@"\"))
-                    dir += @"\";
-                Proxy prx = new Proxy();
+                IProxy prx = new Proxy();
                 var cli = new CommandLine(prx);
-                prx.LoadData(dir + "config.xml");
+                prx.LoadData();
                 cli.StartLoop();
                 prx.Stop();
             }
-            catch
+            catch(Exception ex)
             {
                 Console.WriteLine("The program ended abnormally!");
+                Console.WriteLine(ex);
+                Console.ReadLine();
             }
         }
     }

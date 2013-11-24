@@ -45,7 +45,7 @@ namespace Org.Mentalis.Proxy.Socks.Authentication
         ///<summary>Initializes a new instance of the AuthUserPass class.</summary>
         ///<param name="AuthList">An AuthenticationList object that contains the list of all valid username/password combinations.</param>
         ///<remarks>If the AuthList parameter is null, any username/password combination will be accepted.</remarks>
-        public AuthUserPass(AuthenticationList AuthList)
+        public AuthUserPass(IAuthenticationList AuthList)
         {
             this.AuthList = AuthList;
         }
@@ -155,21 +155,11 @@ namespace Org.Mentalis.Proxy.Socks.Authentication
             catch { }
             Callback(false);
         }
+
         ///<summary>Gets or sets the AuthenticationList to use when a computer tries to authenticate on the proxy server.</summary>
         ///<value>An instance of the AuthenticationList class that contains all the valid username/password combinations.</value>
-        private AuthenticationList AuthList
-        {
-            get
-            {
-                return m_AuthList;
-            }
-            set
-            {
-                m_AuthList = value;
-            }
-        }
+        private IAuthenticationList AuthList { get; set; }
+
         // private variables
-        /// <summary>Holds the value of the AuthList property.</summary>
-        private AuthenticationList m_AuthList;
     }
 }

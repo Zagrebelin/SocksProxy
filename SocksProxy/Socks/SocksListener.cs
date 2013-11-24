@@ -55,13 +55,13 @@ namespace Org.Mentalis.Proxy.Socks
         ///<param name="Port">The port to listen on.</param>
         ///<param name="AuthList">The list of valid login/password combinations. If you do not need password authentication, set this parameter to null.</param>
         ///<remarks>The SocksListener will listen on all available network cards.</remarks>
-        public SocksListener(int Port, AuthenticationList AuthList) : this(IPAddress.Any, Port, AuthList) { }
+        public SocksListener(int Port, IAuthenticationList AuthList) : this(IPAddress.Any, Port, AuthList) { }
         ///<summary>Initializes a new instance of the SocksListener class.</summary>
         ///<param name="Port">The port to listen on.</param>
         ///<param name="Address">The address to listen on. You can specify IPAddress.Any to listen on all installed network cards.</param>
         ///<param name="AuthList">The list of valid login/password combinations. If you do not need password authentication, set this parameter to null.</param>
         ///<remarks>For the security of your server, try to avoid to listen on every network card (IPAddress.Any). Listening on a local IP address is usually sufficient and much more secure.</remarks>
-        public SocksListener(IPAddress Address, int Port, AuthenticationList AuthList)
+        public SocksListener(IPAddress Address, int Port, IAuthenticationList AuthList)
             : base(Port, Address)
         {
             this.AuthList = AuthList;
@@ -91,20 +91,12 @@ namespace Org.Mentalis.Proxy.Socks
                 Dispose();
             }
         }
+
         ///<summary>Gets or sets the AuthenticationList to be used when a SOCKS5 client connects.</summary>
         ///<value>An AuthenticationList that is to be used when a SOCKS5 client connects.</value>
         ///<remarks>This value can be null.</remarks>
-        private AuthenticationList AuthList
-        {
-            get
-            {
-                return m_AuthList;
-            }
-            set
-            {
-                m_AuthList = value;
-            }
-        }
+        private IAuthenticationList AuthList { get; set; }
+
         ///<summary>Returns a string representation of this object.</summary>
         ///<returns>A string with information about this object.</returns>
         public override string ToString()
@@ -124,7 +116,5 @@ namespace Org.Mentalis.Proxy.Socks
             }
         }
         // private variables
-        /// <summary>Holds the value of the AuthList property.</summary>
-        private AuthenticationList m_AuthList;
     }
 }

@@ -29,158 +29,27 @@
 */
 
 using System;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Linq;
-using System.Threading;
 using System.Reflection;
-using System.Collections;
-using System.Net.Sockets;
-using System.Security.Cryptography;
-using Org.Mentalis.Proxy;
-using Org.Mentalis.Proxy.Ftp;
-using Org.Mentalis.Proxy.Http;
-using Org.Mentalis.Proxy.Socks;
-using Org.Mentalis.Proxy.PortMap;
-using Org.Mentalis.Proxy.Socks.Authentication;
-using Org.Mentalis.Utilities.ConsoleAttributes;
 using System.Collections.Generic;
+using Org.Mentalis.Proxy.Socks.Authentication;
 
 namespace Org.Mentalis.Proxy
 {
     
-    public struct ProxyCommand
-    {
-        public Action Action;
-        public string HelpString;
-    }
+   
     /// <summary>
     /// Defines the class that controls the settings and listener objects.
     /// </summary>
-    public class Proxy
+    public class Proxy:IProxy
     {
         /// <summary>
         /// Initializes a new Proxy instance.
         /// </summary>
         public Proxy()
         {
-            Config = new ProxyConfig(this);
+            Config = new ProxyConfig(this, new AuthenticationList());
+            listeners = new Dictionary<Guid, Listener>();
         }
-
-        /// <summary>
-        /// Asks the user which listener to delete.
-        /// </summary>
-        protected void ShowDelListener()
-        {
-            Console.WriteLine("Please enter the ID of the listener you want to delete:\r\n (use the 'listlisteners' command to show all the listener IDs)");
-            string id = Console.ReadLine();
-            try
-            {
-                listenerManager.Remove(id);
-                Console.WriteLine("Listener removed from the list.");
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                Console.WriteLine("Specified ID not found in list!");
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("Invalid ID tag!");
-            }
-        }
-                
-    
-
-        /// <summary>
-        /// Shows the Listeners list.
-        /// </summary>
-        protected void ShowListeners()
-        {
-            listenerManager.DoAll((guid, listener) =>
-            {
-                Console.WriteLine(listener.ToString());
-                Console.WriteLine("  id: {0}", guid.ToString("N"));
-            });
-        }
-
-        /// <summary>
-        /// Asks the user which listener to add.
-        /// </summary>
-        protected void ShowAddListener()
-        {
-            Console.WriteLine(
-                "Please enter the full class name of the Listener object you're trying to add:\r\n (ie. Org.Mentalis.Proxy.Http.HttpListener) or short name from table of Available Listeners:");
-            ShowAvailableListeners();
-            string classtype = Console.ReadLine();
-            if (classtype == "")
-                return;
-            else if (availableManager.ContainsKey(classtype))
-            {
-                classtype = availableManager.GetFullName(classtype);
-            }
-            else if (Type.GetType(classtype) == null)
-            {
-                Console.WriteLine("The specified class does not exist!");
-                return;
-            }
-            Console.WriteLine("Please enter the construction parameters:");
-            ShowAvailableConstructors(classtype);
-            string construct = Console.ReadLine();
-            object listenObject = CreateListener(classtype, construct);
-            if (listenObject == null)
-            {
-                Console.WriteLine("Invalid construction string.");
-                return;
-            }
-            Listener listener;
-            try
-            {
-                listener = (Listener) listenObject;
-            }
-            catch
-            {
-                Console.WriteLine("The specified object is not a valid Listener object.");
-                return;
-            }
-            try
-            {
-                listener.Start();
-                AddListener(listener);
-            }
-            catch
-            {
-                Console.WriteLine("Error while staring the Listener.\r\n(Perhaps the specified port is already in use?)");
-                return;
-            }
-        }
-
-        private void ShowAvailableConstructors(string classtype)
-        {
-            var type = Type.GetType(classtype);
-            var constructors = type.GetConstructors();
-            foreach (var info in constructors)
-            {
-                var pars = info.GetParameters();
-                var spars = pars.Select(par => string.Format("{0}:{1}", par.ParameterType.Name, par.Name));
-                Console.WriteLine(string.Join(";", spars));
-            }
-        }
-
-        /// <summary>
-        /// Shows the version number of this proxy server.
-        /// </summary>
-        protected void ShowVersion()
-        {
-            Console.WriteLine("This is version " + Assembly.GetCallingAssembly().GetName().Version.ToString(3) + " of the Mentalis.org proxy server.");
-        }
-
-        protected void ShowAvailableListeners()
-        {
-            availableManager.DoAll((id, type) => Console.WriteLine("{0} -> {1}", id, type));
-        }
-        
-
 
         /// <summary>
         /// Stops the proxy server.
@@ -188,99 +57,154 @@ namespace Org.Mentalis.Proxy
         /// <remarks>When this method is called, all listener and client objects will be disposed.</remarks>
         public void Stop()
         {
-            // Stop listening and clear the Listener list
-            listenerManager.DoAll(le =>
+            foreach (var listener in listeners.Values)
             {
-                Console.WriteLine(le.ToString() + " stopped");
-                le.Dispose();
-            });
-            
-            listenerManager.RemoveAll();
-        }
-        /// <summary>
-        /// Adds a listener to the Listeners list.
-        /// </summary>
-        /// <param name="newItem">The new Listener to add.</param>
-        public void AddListener(Listener newItem)
-        {
-            if (newItem == null)
-                throw new ArgumentNullException();
-            listenerManager.AddListener(newItem);
-            Console.WriteLine(newItem.ToString() + " started.");
-        }
-        /// <summary>
-        /// Creates a new Listener obejct from a given listener name and a given listener parameter string.
-        /// </summary>
-        /// <param name="type">The type of object to instantiate.</param>
-        /// <param name="cpars"></param>
-        /// <returns></returns>
-        public Listener CreateListener(string type, string cpars)
-        {
-            try
-            {
-                string[] parts = cpars.Split(';');
-                var pars = new List<object>();
-                string oval = null;
-                // Start instantiating the objects to give to the constructor
-                foreach (var part in parts)
-                {
-                    int ret = part.IndexOf(':');
-                    string otype = null;
-                    if (ret >= 0)
-                    {
-                        otype = part.Substring(0, ret);
-                        oval = part.Substring(ret + 1);
-                    }
-                    else
-                    {
-                        otype = part;
-                    }
-                    switch (otype.ToLower())
-                    {
-                        case "int":
-                            pars.Add(int.Parse(oval));
-                            break;
-                        case "host":
-                            pars.Add(Dns.Resolve(oval).AddressList[0]);
-                            break;
-                        case "authlist":
-                            pars.Add(Config.UserList);
-                            break;
-                        case "null":
-                            pars.Add(null);
-                            break;
-                        case "string":
-                            pars.Add(oval);
-                            break;
-                        case "ip":
-                            pars.Add(IPAddress.Parse(oval));
-                            break;
-                        default:
-                            pars.Add(null);
-                            break;
-                    }
-                }
-                return (Listener)Activator.CreateInstance(Type.GetType(type), pars);
+                OnListenerStopped(new ListenerEventArgs() { Listener = listener });
+                listener.Dispose();
             }
-            catch
-            {
-                return null;
-            }
+            listeners.Clear();
         }
-        
-       
-        /// <summary>
-        /// Gets or sets the configuration object for this Proxy server.
-        /// </summary>
-        /// <value>A ProxyConfig instance that represents the configuration object for this Proxy server.</value>
-        protected ProxyConfig Config { get; private set; }
 
-        public ListenerManager listenerManager = new ListenerManager();
-        private AvailableListenerManager availableManager = new AvailableListenerManager();
+        public void SaveData(string filename)
+        {
+            Config.SaveData(filename);
+        }
+
+
 
         public void LoadData(string filename)
         {
             Config.LoadData(filename);
         }
+
+
+        public IDictionary<Guid, Listener> ListListeners()
+        {
+            return new Dictionary<Guid, Listener>(listeners);
+        }
+
+        public void RemoveListenerById(Guid id)
+        {
+            Listener listener;
+            if (!listeners.TryGetValue(id, out listener))
+                throw new ArgumentOutOfRangeException(string.Format("Listener with id={0} not found", id), "id");
+            OnListenerStopped(new ListenerEventArgs() { Listener = listener });
+            listener.Dispose();
+            listeners.Remove(id);
+        }
+        /// <summary>
+        /// Adds a listener to the Listeners list.
+        /// </summary>
+        /// <param name="newItem">The new Listener to add.</param>
+
+        public void AddListener(Type type, object[] pars)
+        {
+            AddListener(Guid.NewGuid(), type, pars);
+        }
+
+        public void AddListener(Guid id, Type type, object[] pars)
+        {
+            var listener = (Listener)Activator.CreateInstance(type, pars);
+            AddListener(id, listener);
+        }
+
+        public void AddListener(Listener newItem)
+        {
+            AddListener(Guid.NewGuid(), newItem);
+        }
+
+        private void AddListener(Guid id, Listener newItem)
+        {
+            if (newItem == null)
+                throw new ArgumentNullException();
+            listeners[id] = newItem;
+            OnListenerStarted(new ListenerEventArgs {Listener = newItem});
+            newItem.Start();
+        }
+
+        public bool IsUserPresent(string name)
+        {
+            return Config.UserList.IsUserPresent(name);
+        }
+
+        public void AddUser(string name, string pass1)
+        {
+            Config.UserList.AddItem(name, pass1);
+            OnUserCreated(new UserEventArgs {Username = name});
+        }
+
+        public void RemoveUser(string name)
+        {
+            Config.UserList.RemoveItem(name);
+            OnUserDeleted(new UserEventArgs { Username = name });
+        }
+
+        public IList<string> GetUserNames()
+        {
+            return Config.UserList.Usernames;
+        }
+
+
+        /// <summary>
+        /// Gets or sets the configuration object for this Proxy server.
+        /// </summary>
+        /// <value>A ProxyConfig instance that represents the configuration object for this Proxy server.</value>
+        public ProxyConfig Config { get; private set; }
+
+        private readonly IDictionary<Guid, Listener> listeners;
+
+
+        public event EventHandler<ListenerEventArgs> ListenerStarted;
+        public event EventHandler<ListenerEventArgs> ListenerStopped;
+        public event EventHandler<UserEventArgs> UserCreated;
+        public event EventHandler<UserEventArgs> UserDeleted;
+
+
+        protected void OnListenerStarted(ListenerEventArgs e)
+        {
+            var handler = ListenerStarted;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected void OnListenerStopped(ListenerEventArgs e)
+        {
+            var handler = ListenerStopped;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected void OnUserCreated(UserEventArgs e)
+        {
+            var handler = UserCreated;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected void OnUserDeleted(UserEventArgs e)
+        {
+            var handler = UserDeleted;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+    }
+
+    public class ListenerEventArgs:EventArgs
+    {
+        public Listener Listener { get; set; }
+    }
+
+    public class UserEventArgs:EventArgs
+    {
+        public string Username { get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace Org.Mentalis.Proxy.Socks
         ///<param name="Destroyer">The method to be called when this SocksClient object disconnects from the local client and the remote server.</param>
         ///<param name="AuthList">The list with valid username/password combinations.</param>
         ///<remarks>If the AuthList is non-null, every client has to authenticate before he can use this proxy server to relay data. If it is null, the clients don't have to authenticate.</remarks>
-        public SocksClient(Socket ClientSocket, DestroyDelegate Destroyer, AuthenticationList AuthList)
+        public SocksClient(Socket ClientSocket, DestroyDelegate Destroyer, IAuthenticationList AuthList)
             : base(ClientSocket, Destroyer)
         {
             this.AuthList = AuthList;
@@ -149,19 +149,11 @@ namespace Org.Mentalis.Proxy.Socks
             else
                 Dispose();
         }
+
         ///<summary>Gets or sets the AuthenticationList to use when a computer tries to authenticate on the proxy server.</summary>
         ///<value>An instance of the AuthenticationList class that contains all the valid username/password combinations.</value>
-        private AuthenticationList AuthList
-        {
-            get
-            {
-                return m_AuthList;
-            }
-            set
-            {
-                m_AuthList = value;
-            }
-        }
+        private IAuthenticationList AuthList { get; set; }
+
         ///<summary>Returns text information about this SocksClient object.</summary>
         ///<returns>A string representing this SocksClient object.</returns>
         public override string ToString()
@@ -179,8 +171,6 @@ namespace Org.Mentalis.Proxy.Socks
             }
         }
         // private variables
-        /// <summary>Holds the value of the AuthList property.</summary>
-        private AuthenticationList m_AuthList;
         /// <summary>Holds the value of the MustAuthenticate property.</summary>
         private bool m_MustAuthenticate = false;
         /// <summary>Holds the value of the Handler property.</summary>
