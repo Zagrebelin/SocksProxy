@@ -76,7 +76,7 @@ namespace Org.Mentalis.Proxy.Cli
                                 {"exit", new ProxyCommand {Action = () => { }, HelpString = "Exit the application"}},
                                 {
                                     "save",
-                                    new ProxyCommand {Action = () => _proxy.SaveData(""), HelpString = "Save configuration"}
+                                    new ProxyCommand {Action = () => _proxy.SaveData(), HelpString = "Save configuration"}
                                 },
                             };
         }

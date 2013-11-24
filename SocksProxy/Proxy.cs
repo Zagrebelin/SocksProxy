@@ -65,14 +65,14 @@ namespace Org.Mentalis.Proxy
             listeners.Clear();
         }
 
-        public void SaveData(string filename)
+        public void SaveData()
         {
             Config.SaveData(filename);
         }
 
 
 
-        public void LoadData(string filename)
+        public void LoadData()
         {
             Config.LoadData(filename);
         }

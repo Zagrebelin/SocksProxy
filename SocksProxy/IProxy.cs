@@ -10,8 +10,8 @@ namespace Org.Mentalis.Proxy
         event EventHandler<UserEventArgs> UserCreated;
         event EventHandler<UserEventArgs> UserDeleted;
 
-        void LoadData(string filename);
-        void SaveData(string filename);
+        void LoadData();
+        void SaveData();
 
         void AddListener(Listener listener);
         IDictionary<Guid, Listener> ListListeners();
