@@ -49,17 +49,17 @@ namespace Org.Mentalis.Proxy.Socks.Authentication
         ///<param name="Username">The username to add.</param>
         ///<param name="Password">The corresponding password to add.</param>
         ///<exception cref="ArgumentNullException">Either Username or Password is null.</exception>
-        public void AddItem(string Username, string Password)
+        public void AddUserWithPassword(string Username, string Password)
         {
             if (Password == null)
                 throw new ArgumentNullException();
-            AddHash(Username, Convert.ToBase64String(new MD5CryptoServiceProvider().ComputeHash(Encoding.ASCII.GetBytes(Password))));
+            AddUserWithCryptedPassword(Username, Convert.ToBase64String(new MD5CryptoServiceProvider().ComputeHash(Encoding.ASCII.GetBytes(Password))));
         }
         ///<summary>Adds an item to the list.</summary>
         ///<param name="Username">The username to add.</param>
         ///<param name="PassHash">The hashed password to add.</param>
         ///<exception cref="ArgumentNullException">Either Username or Password is null.</exception>
-        public void AddHash(string Username, string PassHash)
+        public void AddUserWithCryptedPassword(string Username, string PassHash)
         {
             if (Username == null || PassHash == null)
                 throw new ArgumentNullException();

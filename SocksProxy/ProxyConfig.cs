@@ -63,7 +63,7 @@ namespace Org.Mentalis.Proxy
         /// <summary>
         /// Saves the data in this class to an XML file.
         /// </summary>
-        public void SaveData(string filename)
+        public void SaveData()
         {
             var cc = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var ss = cc.Sections["mentalis"] as MentalisSection;
@@ -100,13 +100,15 @@ namespace Org.Mentalis.Proxy
         /// <summary>
         /// Loads the data from an XML file.
         /// </summary>
-        public void LoadData(string filename)
+        public void LoadData()
         {
             var c = Mentalis.Config;
+            if (c == null)
+                return;
 
             foreach (MentalisSection.UsersElementCollection.UserElement user in c.Users)
             {
-                UserList.AddHash(user.Name, user.Hash);
+                UserList.AddUserWithCryptedPassword(user.Name, user.Hash);
             }
 
             foreach (MentalisSection.ListenersElementCollection.ListenerElement listener in c.Listeners)

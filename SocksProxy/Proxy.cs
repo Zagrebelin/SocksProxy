@@ -67,14 +67,14 @@ namespace Org.Mentalis.Proxy
 
         public void SaveData()
         {
-            Config.SaveData(filename);
+            Config.SaveData();
         }
 
 
 
         public void LoadData()
         {
-            Config.LoadData(filename);
+            Config.LoadData();
         }
 
 
@@ -129,7 +129,7 @@ namespace Org.Mentalis.Proxy
 
         public void AddUser(string name, string pass1)
         {
-            Config.UserList.AddItem(name, pass1);
+            Config.UserList.AddUserWithPassword(name, pass1);
             OnUserCreated(new UserEventArgs {Username = name});
         }
 
