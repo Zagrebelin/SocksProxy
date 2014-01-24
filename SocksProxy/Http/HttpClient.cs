@@ -47,33 +47,22 @@ namespace Org.Mentalis.Proxy.Http
         ///<summary>Initializes a new instance of the HttpClient class.</summary>
         ///<param name="ClientSocket">The <see cref ="Socket">Socket</see> connection between this proxy server and the local client.</param>
         ///<param name="Destroyer">The callback method to be called when this Client object disconnects from the local client and the remote server.</param>
-        public HttpClient(Socket ClientSocket, DestroyDelegate Destroyer) : base(ClientSocket, Destroyer) { }
+        public HttpClient(Socket ClientSocket, DestroyDelegate Destroyer) : base(ClientSocket, Destroyer)
+        {
+            HttpRequestType = "";
+            HttpVersion = "";
+            RequestedPath = null;
+            HeaderFields = null;
+        }
+
         ///<summary>Gets or sets a StringDictionary that stores the header fields.</summary>
         ///<value>A StringDictionary that stores the header fields.</value>
-        private StringDictionary HeaderFields
-        {
-            get
-            {
-                return m_HeaderFields;
-            }
-            set
-            {
-                m_HeaderFields = value;
-            }
-        }
+        private StringDictionary HeaderFields { get; set; }
+
         ///<summary>Gets or sets the HTTP version the client uses.</summary>
         ///<value>A string representing the requested HTTP version.</value>
-        private string HttpVersion
-        {
-            get
-            {
-                return m_HttpVersion;
-            }
-            set
-            {
-                m_HttpVersion = value;
-            }
-        }
+        private string HttpVersion { get; set; }
+
         ///<summary>Gets or sets the HTTP request type.</summary>
         ///<remarks>
         ///Usually, this string is set to one of the three following values:
@@ -84,30 +73,12 @@ namespace Org.Mentalis.Proxy.Http
         ///</list>
         ///</remarks>
         ///<value>A string representing the HTTP request type.</value>
-        private string HttpRequestType
-        {
-            get
-            {
-                return m_HttpRequestType;
-            }
-            set
-            {
-                m_HttpRequestType = value;
-            }
-        }
+        private string HttpRequestType { get; set; }
+
         ///<summary>Gets or sets the requested path.</summary>
         ///<value>A string representing the requested path.</value>
-        public string RequestedPath
-        {
-            get
-            {
-                return m_RequestedPath;
-            }
-            set
-            {
-                m_RequestedPath = value;
-            }
-        }
+        public string RequestedPath { get; set; }
+
         ///<summary>Gets or sets the query string, received from the client.</summary>
         ///<value>A string representing the HTTP query string.</value>
         private string HttpQuery
@@ -449,14 +420,7 @@ namespace Org.Mentalis.Proxy.Http
         // private variables
         /// <summary>Holds the value of the HttpQuery property.</summary>
         private string m_HttpQuery = "";
-        /// <summary>Holds the value of the RequestedPath property.</summary>
-        private string m_RequestedPath = null;
-        /// <summary>Holds the value of the HeaderFields property.</summary>
-        private StringDictionary m_HeaderFields = null;
-        /// <summary>Holds the value of the HttpVersion property.</summary>
-        private string m_HttpVersion = "";
-        /// <summary>Holds the value of the HttpRequestType property.</summary>
-        private string m_HttpRequestType = "";
+
         /// <summary>Holds the POST data</summary>
         private string m_HttpPost = null;
     }

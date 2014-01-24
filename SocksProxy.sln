@@ -1,25 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocksProxy", "SocksProxy\SocksProxy.csproj", "{C374EB5C-5328-4051-A584-D6D46BA62FB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocksProxyCli", "SocksProxyCli\SocksProxyCli.csproj", "{57CE6965-3B4E-4063-B469-CD8AE4B6F708}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://zagrebelin.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = SocksProxy\\SocksProxy.csproj
-		SccProjectName1 = SocksProxy
-		SccLocalPath1 = SocksProxy
-		SccProjectUniqueName2 = SocksProxyCli\\SocksProxyCli.csproj
-		SccProjectName2 = SocksProxyCli
-		SccLocalPath2 = SocksProxyCli
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
