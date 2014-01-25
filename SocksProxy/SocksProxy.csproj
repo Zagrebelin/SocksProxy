@@ -15,7 +15,8 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -44,6 +45,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,6 +55,8 @@
   <ItemGroup>
     <Compile Include="AvailableListenerManager.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="HttpNms\HttpNmsClient.cs" />
+    <Compile Include="HttpNms\HttpNmsListener.cs" />
     <Compile Include="IProxy.cs" />
     <Compile Include="Socks\Authentication\AuthBase.cs" />
     <Compile Include="Socks\Authentication\AuthenticationList.cs" />

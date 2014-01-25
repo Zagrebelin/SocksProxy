@@ -42,7 +42,7 @@ namespace Org.Mentalis.Proxy.Http
 
     ///<summary>Relays HTTP data between a remote host and a local client.</summary>
     ///<remarks>This class supports both HTTP and HTTPS.</remarks>
-    public sealed class HttpClient : Client
+    public class HttpClient : Client
     {
         ///<summary>Initializes a new instance of the HttpClient class.</summary>
         ///<param name="ClientSocket">The <see cref ="Socket">Socket</see> connection between this proxy server and the local client.</param>
@@ -78,6 +78,10 @@ namespace Org.Mentalis.Proxy.Http
         ///<summary>Gets or sets the requested path.</summary>
         ///<value>A string representing the requested path.</value>
         public string RequestedPath { get; set; }
+
+        ///<summary>Gets or sets the ip or hostname.</summary>
+        ///<value>A string representing the requested ip or hostname.</value>
+        protected string Host { get; set; }
 
         ///<summary>Gets or sets the query string, received from the client.</summary>
         ///<value>A string representing the HTTP query string.</value>
@@ -145,7 +149,6 @@ namespace Org.Mentalis.Proxy.Http
                 return;
             }
             int Port;
-            string Host;
             int Ret;
             if (HttpRequestType.ToUpper().Equals("CONNECT"))
             { //HTTPS
@@ -266,7 +269,7 @@ namespace Org.Mentalis.Proxy.Http
         }
         ///<summary>Rebuilds the HTTP query, starting from the HttpRequestType, RequestedPath, HttpVersion and HeaderFields properties.</summary>
         ///<returns>A string representing the rebuilt HTTP query string.</returns>
-        private string RebuildQuery()
+        protected virtual string RebuildQuery()
         {
             string ret = HttpRequestType + " " + RequestedPath + " " + HttpVersion + "\r\n";
             if (HeaderFields != null)

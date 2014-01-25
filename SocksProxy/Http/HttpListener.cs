@@ -37,7 +37,7 @@ namespace Org.Mentalis.Proxy.Http
 {
 
     ///<summary>Listens on a specific port on the proxy server and forwards all incoming HTTP traffic to the appropriate server.</summary>
-    public sealed class HttpListener : Listener
+    public class HttpListener : Listener
     {
         ///<summary>Initializes a new instance of the HttpListener class.</summary>
         ///<param name="Port">The port to listen on.</param>
